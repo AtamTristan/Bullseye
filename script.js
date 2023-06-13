@@ -1,4 +1,5 @@
 //EventListener for that all images are loaded before anything runs
+// collsionX and collisionY for position and spriteX and spriteY are for the Spritesheet
 
 window.addEventListener('load', function(){
 	const canvas = document.getElementById('canvas1');
@@ -60,7 +61,12 @@ window.addEventListener('load', function(){
 			}
 			this.collisionX += this.speedX * this.speedModifier;
 			this.collisionY += this.speedY * this.speedModifier;
-
+			// collisions with obstacles
+			this.game.obstacles.forEach(obstacle => {
+				if(this.game.checkCollision(this, obstacle)){
+					console.log('collision');
+				}
+			});
 		}
 
 	}
@@ -143,6 +149,15 @@ window.addEventListener('load', function(){
 			this.player.update();
 			this.obstacles.forEach(obstacle => obstacle.draw(context));
 		}
+
+		checkCollision(a, b){
+			const dx = a.collisionX - b.collisionX;
+			const dy = a.collisionY - b.collisionY;
+			const distance = Math.hypot(dy, dx);
+			const sunOfRadii = a.collisionRadius + b.collisionRadius;
+			return (distance < sunOfRadii);
+		}
+
 		// Brute force algorithmen, tries over and over
 		init(){
 			let attempts = 0;
