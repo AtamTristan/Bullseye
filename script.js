@@ -17,7 +17,7 @@ window.addEventListener('load', function(){
 			this.game = game;
 			this.collisionX = this.game.width * 0.5;
 			this.collisionY = this.game.height * 0.5;
-			this.collisionRadius = 30;
+			this.collisionRadius = 50;
 			this.speedX = 0;
 			this.speedY = 0;
 			this.dx = 0;
@@ -63,8 +63,13 @@ window.addEventListener('load', function(){
 			this.collisionY += this.speedY * this.speedModifier;
 			// collisions with obstacles
 			this.game.obstacles.forEach(obstacle => {
-				if(this.game.checkCollision(this, obstacle)){
-					console.log('collision');
+				//[(distance < sunOfRadii), distance, sunOfRadii, dx, dy]
+				let [collision, distance, sunOfRadii, dx, dy] = this.game.checkCollision(this, obstacle);
+				if (collision){
+					const unit_x = dx / distance;
+					const unit_y = dy / distance;
+					this.collisionX = obstacle.collisionX + (sunOfRadii + 1) * unit_x;
+					this.collisionY = obstacle.collisionY + (sunOfRadii + 1) * unit_y;
 				}
 			});
 		}
@@ -145,9 +150,9 @@ window.addEventListener('load', function(){
 			});
 		}
 		render(context){ // will draw and update all objects in the game
+			this.obstacles.forEach(obstacle => obstacle.draw(context));
 			this.player.draw(context);
 			this.player.update();
-			this.obstacles.forEach(obstacle => obstacle.draw(context));
 		}
 
 		checkCollision(a, b){
@@ -155,7 +160,7 @@ window.addEventListener('load', function(){
 			const dy = a.collisionY - b.collisionY;
 			const distance = Math.hypot(dy, dx);
 			const sunOfRadii = a.collisionRadius + b.collisionRadius;
-			return (distance < sunOfRadii);
+			return [(distance < sunOfRadii), distance, sunOfRadii, dx, dy];
 		}
 
 		// Brute force algorithmen, tries over and over
