@@ -78,9 +78,11 @@ window.addEventListener('load', function(){
 			this.height = this.spriteHeight;
 			this.spriteX = this.collisionX - this.width * 0.5;
 			this.spriteY = this.collisionY - this.height * 0.5 - 70;
+			this.frameX = Math.floor(Math.random() * 4);
+			this.frameY = Math.floor(Math.random() * 3);
 		}
 		draw(context){
-			context.drawImage(this.image, 0, 0, this.spriteWidth, this.spriteHeight, this.spriteX, this.spriteY,this.width,this.height);
+			context.drawImage(this.image, this.frameX * this.spriteWidth, this.frameY * this.spriteHeight, this.spriteWidth, this.spriteHeight, this.spriteX, this.spriteY,this.width,this.height);
 			context.beginPath(); // for drawing a new shape and close previous
 			context.arc(this.collisionX, this.collisionY, this.collisionRadius, 0, Math.PI * 2); // at least 5 arguments
 			/*
@@ -105,6 +107,7 @@ window.addEventListener('load', function(){
 			this.canvas = canvas;
 			this.width = this.canvas.width;
 			this.height = this.canvas.height;
+			this.topMargin = 260; // So that they are not going over this margin on the top
 			this.player = new Player(this);
 			this.numberOfObstacles = 10;
 			this.obstacles = [];
@@ -150,12 +153,14 @@ window.addEventListener('load', function(){
 					const dx = testObstacle.collisionX - obstacle.collisionX;
 					const dy = testObstacle.collisionY - obstacle.collisionY;
 					const distance = Math.hypot(dy, dx);
-					const sumOfRadii = testObstacle.collisionRadius + obstacle.collisionRadius;
+					const distanceBuffer = 150;
+					const sumOfRadii = testObstacle.collisionRadius + obstacle.collisionRadius + distanceBuffer;
 					if(distance < sumOfRadii){
 						overlap = true;
 					}
 				});
-				if(!overlap){
+				const margin = testObstacle.collisionRadius * 2;
+				if(!overlap && testObstacle.spriteX > 0 && testObstacle.spriteX < this.width - testObstacle.width && testObstacle.collisionY > this.topMargin + margin && testObstacle.collisionY < this.height - margin){
 					this.obstacles.push(testObstacle);
 				}
 				attempts++;
